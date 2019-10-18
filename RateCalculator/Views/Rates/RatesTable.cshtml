@@ -1,0 +1,39 @@
+﻿@model RateCalculator.Models.AssumptionViewModel
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Rate Type</th>
+            <th scope="col">Fremont Bank Rate</th>
+            <th scope="col">Points/Credits</th>
+            <th scope="col">Per Month</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.rateLst != null)
+        {
+            foreach (var product in Model.rateLst)
+            {
+                <tr>
+                    <td>
+                        <span class="badge badge-primary">@product.productName</span>
+                    </td>
+                    <td>@product.rate % / 3.785%</td>
+                    <td>
+                        $@product.discountRebate
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </td>
+                    <td>
+                        $@product.pi.ToString("0.00")
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width: 35%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+
+
+    </tbody>
+</table>

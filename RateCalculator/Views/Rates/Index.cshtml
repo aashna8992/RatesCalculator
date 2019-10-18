@@ -1,0 +1,154 @@
+﻿@model RateCalculator.Models.AssumptionViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Rates Calculator</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body style="background-color:whitesmoke">
+    <div class="container pt-2 pb-2 pl-4 pr-4" style="max-width: 60%; background-color:white">
+        <div class="row">
+            <div class="col-md-12">
+                <span style="font-size:13px"><b>Mortgage rates today for home purchase</b></span>
+                <div id="rateFormAccordion">
+                    <div class="card">
+                        <div class="card-header" id="rateForm">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseForm" aria-expanded="true" aria-controls="collapseForm">
+                                    Assumptions:
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseForm" class="collapse hide" aria-labelledby="rateForm" data-parent="#rateFormAccordion">
+                            <div class="card-body">
+                                <div>
+                                    @using (Ajax.BeginForm("GetRates", "Rates",
+                                    new AjaxOptions
+                                    {
+                                        HttpMethod = "Post",
+                                        UpdateTargetId = "ratesTablePartialView"
+                                    }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <div class="row">
+                                            <div class="form-group col-md-4">
+                                                <label for="zip" class="control-label">Zip</label>
+                                                @Html.TextBoxFor(m => m.assumption.zipCode, new { @class = "form-control", placeholder = "94531" })
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="homebuyer" class="control-label">First time homebuyer</label>
+                                                <div>
+                                                    @Html.RadioButtonFor(m => m.assumption.firstTimeHomebuyer, "Yes", new { @checked = "checked" })<label for="yes">Yes</label>
+                                                    @Html.RadioButtonFor(m => m.assumption.firstTimeHomebuyer, "No")<label for="no">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-md-4">
+                                                <label for="creditScoreRange" class="control-label">Credit Score Range</label>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">$</span>
+                                                    </div>
+                                                    @Html.TextBoxFor(m => m.assumption.representativeFico, new { @class = "form-control", placeholder = "0" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="propertyType" class="control-label">Property Type</label>
+                                                @*@Html.DropDownListFor(m => m.propertyType,
+                                                    new List<SelectListItem>{
+                                                      new SelectListItem{ Text="SFR (1-unit)", Value = "1" },
+                                                      new SelectListItem{ Text="Low-Rise Condo (1-4)", Value = "3" },
+                                                      new SelectListItem{ Text="Mid-Rise Condo (5-8)", Value = "5" },
+                                                      new SelectListItem{ Text="HIgh Rise Condo (9+)", Value = "6" },
+                                                      new SelectListItem{ Text="Manufactured Home", Value = "9" },
+                                                       new SelectListItem{ Text="PUD", Value = "15" },
+                                                      new SelectListItem{ Text="TownHome", Value = "16" },
+                                                      new SelectListItem{ Text="2 Unit", Value = "21" },
+                                                      new SelectListItem{ Text="3 Unit", Value = "31" },
+                                                      new SelectListItem{ Text="4 Unit", Value = "41" },
+                                                        }, "Select Property Type", new { @class = "form-control" })*@
+                                                @Html.DropDownListFor(m => m.assumption.propertyTypeId, Model.properties
+                                                  , "Select Property Type", new { @class = "form-control" })
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="propertyUsage" class="control-label">Property Usage</label>
+                                                @*@Html.DropDownListFor(m => m.occupancyType,
+                                                    new List<SelectListItem>{
+                                                      new SelectListItem{ Text="Owner Occupied", Value = "1" },
+                                                      new SelectListItem{ Text="Second Home", Value = "2" },
+                                                      new SelectListItem{ Text="Investment Property", Value = "3" },
+                                                        }, "Select Property Usage", new { @class = "form-control" })*@
+                                            @Html.DropDownListFor(m => m.assumption.occupancyTypeId, Model.occupancies, "Select Property Usage", new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-md-4">
+                                                <label for="purchasePrice" class="control-label">Purchase Price</label>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">$</span>
+                                                    </div>
+                                                    @Html.TextBoxFor(m => m.assumption.purchasePrice, new { @class = "form-control", placeholder = "0" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="estDownpayment" class="control-label">Estimated Down Payment</label>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">$</span>
+                                                    </div>
+                                                    <input type="text" class="form-control" aria-label="estDownpayment" placeholder="0">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">20.0%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row float-right">
+                                            <div class="form-group col-md-4">
+                                                <input type="submit" id="updateRates" value="Update" class="btn btn-info" />
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 mb-3">
+            <div class="row">
+                <div class="col-md-12  text-center">
+                    <button type="submit" class="btn btn-info"> Basic </button>
+                    <button type="submit" class="btn btn-outline-info"> Custom </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="ratesTablePartialView">
+                </div>
+            </div>
+        </div>
+
+    </div>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+    <script type="text/javascript">
+        $(function () {
+        });
+    </script>
+</body>
+</html>
